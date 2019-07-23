@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html>    
+<head id="secondHead">  
+ <title>Sentence Diagrammer - Robert A. Spangler Assignment 4</title>
+<link rel="stylesheet" href="main.css"> 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+<body id="body">
+<h1 id="mainTitle">Welcome to the Sentence Diagrammer!</h1>
+<h2 id="secondTitle">You can practice your diagramming skills here.</h2> 
+    <div id="container">
+        <div id="mainL"></div>           
+            <div id="mainB" class = "main" >
+                <div id ="namein" style = 'padding:2%;'>                    
+                    Please tell us your name.<br>
+                    I am &nbsp;<input id = "fn" type="text" required>              
+                    -   <input id="button1" type="submit" onclick ="validName()" > 
+                    <p id = "errName"style='color:red;'></p>
+                </div>
+            </div>                               
+        <div id="mainR"></div>
+	 	<div id="botpara">
+            <p id = "errorM"></p>
+		</div>
+     </div>
+
+<script>
+    var fname;
+    var preConf;
+    var preScore;
+    var elDragged;
+    var maxScore;
+    var diagram = {sent:0, adj:0, adv:0};
+    var sentence = "Red  Rover  Barked         Loudly    ";
+    var words = ["Red", "Rover", "Barked", "Loudly"];
+    var proposal = ['','','',''];
+    var postConf;
+
+
+
+    
+    
+    
+function validName(){
+    var N = document.getElementById("fn");
+    fname = document.getElementById("fn").value;
+    if(N.checkValidity() == false){
+        document.getElementById("errName").innerHTML = N.validationMessage;
+        } 
+    else{
+            preConf = 5;
+            document.getElementById("errName").innerHTML = "";
+            displayPrelimQ(preConf);
+        }
+}
+    
+function displayPrelimQ(preConf) {  
+      var x = document.getElementById('mainB');
+        x.innerHTML = "<p id = 'name1' margin-top: 2%;> Hello " + fname + "! Before we get started, " +
+                      " please answer two questions for us.</p>" +  
+                       "<p id= 'conf'> How confident do you feel in your ability to diagram sentences?</p>" +
+                    "<div id = 'certainty'>" +
+                       "Very Uncertain" +
+                       "<input id='slider' type='range' min='0' max='10' value = 'preConf' step = '1'>" + 
+                       "Very Confident" +
+                    "</div>" +
+                       "<p></p>" + 
+                       "<p></p>" +
+                       "<p>If you were to take the test right now, what do you think you'd score out of 100 points?</p>" +
+                    "<div id = 'scorediv'>" +
+                        "I'd score" +
+                        "<input id = 'grade' type='text'> points." +
+                   "</div>" +
+                       "<p></p>" +
+                    "<div id = 'subbut1'>" +
+                       "<button id='button2' onclick ='validConf()' >Submit</button>" +
+                     "</div>" +
+                     "<p id='error1' style='color:red;'></p>" +
+                     "<p id='error2' style='color:red;text-align:center'></p>";   
+//I Discovered that, in order for this to operate on the new "button2" created by the
+//innerHTML inside of this javaScript function, the jQuery function had to be placed
+//inside of it!!!
+$(document).ready(function(){
+    $("#button2").mousedown(function(){
+        $("#button2").css("backgroundColor", "red"); 
+        $("#button2").css("color", "white");
+    })
+    $("#button2").mouseup(function(){
+        $("#button2").css("backgroundColor", "#e6e6e6"); 
+        $("#button2").css("color", "black");
+    })
+});
+    
+}
+    
+$(document).ready(function(){
+    $("#button1").mousedown(function(){
+        $("#button1").css("backgroundColor", "red"); 
+        $("#button1").css("color", "white");
+    })
+    $("#button1").mouseup(function(){
+        $("#button1").css("backgroundColor", "#e6e6e6"); 
+        $("#button1").css("color", "black");
+    })
+});
+    
+convertSentence();
+function convertSentence(){
+    sentence = sentence.replace(/[^A-Za-z0-9_.?!]/g," ");
+        //Trying in two lines below to eliminate the spaces at the end of the string.
+        //words array is now 4 in length as it should be.
+        // And it works without "sentence.trim"
+        //sentence.trim();
+    sentence = sentence.replace(/\s*$/,"");
+    alength= sentence.split(' ').length;
+    spaces = (alength-1)/2;
+    sentence =sentence.replace(/\s{2,}/g, " ");
+    words = sentence.split(" ");
+    finLen = words.length;
+    lastEl = words[finLen-1]; 
+    lastEl = lastEl.replace(/[.?!]/,"");
+    words[finLen-1] = lastEl;
+        console.log(sentence);
+        console.log(finLen);
+}
+ 
+function validConf(){
+    preConf = document.getElementById("slider").value;
+    preScore = document.getElementById("grade").value;
+    w = document.getElementById("mainB").clientWidth;
+    h = document.getElementById("mainB").clientHeight;
+    console.log(w,h);
+    var errorCond = true;
+    var score;
+    score = document.getElementById("error2");
+    score.innerHTML = "";
+       
+        
+      try{
+            if(preScore == "") {
+                throw "empty";
+            }
+            else if(isNaN(preScore)) {
+                throw "not a number";
+            }
+            else if(preScore < 0) { 
+                throw "too low";
+            }
+            else if(preScore > 100) {
+                throw "too high";
+            }
+             else {errorCond = false;}
+        }
+        catch(err) {
+            score.innerHTML = "Input is " + err;
+        }
+       finally {
+        if(errorCond == false){
+            preScore = Number(preScore)
+            score.innerHTML = "" ;
+            displayDiagram(w,h);
+         }
+        console.log(preConf);   
+       }
+}
+      
+function displayDiagram(w,h){ 
+    var x = document.getElementById("mainTitle");
+        x.innerHTML = "<h1 id='mainTitle'>Please diagram this sentence.</h1>"; 
+        x = document.getElementById("secondTitle");
+        x.innerHTML = "<h2 id='secondTitle'>" + sentence +"</h2>"; 
+        x= document.getElementById("secondHead");
+        x.innerHTML = "<head id= secondHead'>" + 
+            "<style>" +
+            "body {" +
+            " text-align: center;" +
+            "}" +
+            "#container{ width:100%; height:1000px; background-color: white; " +
+            "}" +
+            "#canvas1 {" +
+            " position: absolute;" +
+            "border-top: 4px solid black;" +
+            "border-bottom: 4px solid black;" +
+            "background-color:red<!--#f2f2f2-->;" +
+            "height: 435px;" +
+            "width: 50%;" +
+            "right: 25%;" +
+            "padding: 5px;" +
+            "float:left;"+
+            "}" +
+            "#listLeft {"+
+            "display:inline-block;"+
+            "left:1%;" +
+            "width: 22%;" +
+            "height: 46%;" +
+            "background-color: white<!--#f0f5f5-->;" +
+            "text-align: right;" +
+            "padding: 5px;" +
+            "float:left;"+
+            "}" +
+            "#listRight {" +
+            "position: absolute;" +
+            "width: 23%;" +
+            "height: 46%;" +
+            "right:1%;" +
+            "text-align: left;" +
+            "background-color: white;" +
+            "padding: 5px;" +
+            "float:left;"+
+            "}" +
+            "</style>" +
+            "</head>";
+		
+        x = document.getElementById("mainL");
+        x.innerHTML = "<div id='listLeft' >" +
+                       "<img src='mainSentence.jpg' alt='mainSentence' " +
+                       "width='58' height='32' draggable ='true'" +
+                       " ondrag='mainS(event)' /*elDragged = '1'*/ ><br>" +
+                       "<img src='modifier.jpg' alt='modifier'" +
+                       "width= '58' height = '32' draggable ='true' " +
+                       "ondrag= 'modIf(event)'/*elDragged = '2'*/><br>" +
+                       "</div>";
+        x = document.getElementById("mainB");
+
+        x.innerHTML=  "<canvas id='canvas1' width='450'height='300'"+
+                      "border ='2px solid black'"+
+                      "ondrop='processChoice(event,450,300)'"+
+		              "ondragover='allowDrop(event)'>" +  
+					  "</canvas>";
+
+        x = document.getElementById("mainR");
+        x.innerHTML = " <div id='listRight'>" +
+                      " <button id= 'Red' draggable" + 
+                      "='true' ondrag= 'adJ(event)'/*elDragged = '3'*/>Red" +
+                      "</button><br>" +
+                      "<button id='Rover' draggable " +
+                      "='true'ondrag= 'subJ(event)'/*elDragged = '4'*/>Rover" +
+                      "</button><br>" +
+                      "<button id='barked' draggable " +
+                      "='true' ondrag= 'preD(event)'/*elDragged = '5'*/>barked" +
+                      "</button><br>" +
+                      "<button id='loudly' draggable " +
+                      "='true' ondrag= 'adV(event)'/*elDragged = '6'*/>loudly" +
+                      "</button><br>" +
+                      "<p></p>" +
+                      "<button id='reset' onclick ='resetAll(w,h)'>Reset</button><br>" +
+                      "<button id='checkAns' onclick ='checkProposal()'>Check Answer</button><br>" +
+                      "<button id='done' onclick ='displayClosing()'>Done</button>";
+        x = document.getElementById("botpara");
+        x.innerHTML = "<div style=' position:absolute; left:24%;" +
+                      " top: 80% ; width:50%; Height: 8%;text-align:center;" +
+                      " background-color: white; display:inline-block;'>" +
+                      "<p id ='errorM' style= 'color:red'></p>"+
+                      "<p style='padding:1%;color:blue'>" +
+                      "Drag diagram elements onto the canvas.<br>" +
+                      "Then drag words onto the diagram.</p>"
+                      "</div>"; 
+}
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// Below is the ONLY way(individual functions) 
+//I found to assign elDragged to each
+//element; declaring the variable inside the 
+//element tag DID NOT WORK no matter how I 
+//wrote it and quoted it.
+function mainS(ev){
+    elDragged=1;
+}
+       
+function modIf(ev){
+    elDragged=2;
+}
+       
+function adJ(ev){
+    elDragged=3;
+}
+       
+function subJ(ev){
+    elDragged=4;
+}
+       
+function preD(ev){
+    elDragged=5;
+}
+       
+function adV(ev){
+    elDragged=6;
+}
+       
+function processChoice(ev, w, h) {    
+  ev.preventDefault();
+  var x = ev.x;
+  var y = ev.y;
+  var c, d, ctx; 
+  var a ; var s ; var p ; var av;    
+  c = document.getElementById("canvas1");
+  ctx = c.getContext("2d");
+  ctx.font ="20px Arial";        
+  x -= c.offsetLeft;
+  y -= c.offsetTop;
+
+    console.log(elDragged);
+    if(elDragged == 1){
+    drawMainSentence(ctx, w, h);
+     }
+     else if((elDragged == 2)&&(x<=0.5*w)){
+         drawAdjLine(ctx, w, h);
+         }
+     else if((elDragged == 2)&&(x>0.5*w)){
+         drawAdvLine(ctx, w, h);
+         }
+          
+     else if((elDragged > 2)&&(x>=0)){
+          if(x <= 0.5 * w){
+              if(y <= 0.4 * h){
+                if (elDragged == 3){
+                    s= words[0];
+                } else if (elDragged ==4){
+                    s= words[1];
+                } else if(elDragged == 5){
+                    s= words[2];
+                } else if(elDragged == 6){
+                    s= words[3];
+                } 
+                drawSubject(ctx, w, h, s);  
+              }
+              else{ 
+                  if (elDragged ==3){
+                    a= words[0];
+                } else if (elDragged ==4){
+                    a= words[1];
+                } else if(elDragged == 5){
+                    a= words[2];
+                } else if(elDragged == 6){
+                    a= words[3];
+                } 
+                drawAdj(ctx, w, h, a);
+              } 
+          }
+          else if(y <= 0.4 * h){
+              if (elDragged ==3){
+                    p= words[0];
+                } else if (elDragged ==4){
+                    p= words[1];
+                } else if(elDragged == 5){
+                    p= words[2];
+                } else if(elDragged == 6){
+                    p= words[3];
+                } 
+            drawPredicate(ctx, w, h, p);
+          }
+          else {
+              if (elDragged ==3){
+                    av= words[0];
+                } else if (elDragged ==4){
+                    av= words[1];
+                } else if(elDragged == 5){
+                    av= words[2];
+                } else if(elDragged == 6){
+                    av= words[3];
+                }
+              drawAdv(ctx, w, h, av); 
+          }  
+     }
+}
+  //alert("x: " + x + " y: " + y); 
+
+function allowDrop(ev) {
+    ev.preventDefault();
+}
+
+// MAIN SENTENCE LINE Code written by Venessa Baez
+function drawMainSentence(ctx, w, h) {  
+     if (diagram.sent==1) {
+          document.getElementById("errorM").innerHTML =
+               "You already have the main sentence structure.";
+       
+     } else {
+          
+          document.getElementById("errorM").innerHTML = "";
+
+          // draw horizontal line for sentence structure
+          ctx.beginPath ();
+          ctx.moveTo (.2*w, .4*h);
+          ctx.lineTo (.8*w, .4*h);
+          ctx.stroke ();
+
+          // draw vertical line for sentence structure
+          ctx.beginPath ();
+          ctx.moveTo(.5*w,.3*h);
+          ctx.lineTo(.5*w,.5*h);
+          ctx.stroke ();
+          diagram.sent = 1;
+     } //ends if-else statement
+} //ends function Draw Main Sentence       
+       
+// ADJECTIVE LINE Code written by Robert (Alex) Spangler
+function drawAdjLine(ctx, w, h, a){ 
+
+    if (diagram.sent==0) {
+        document.getElementById("errorM").innerHTML = 
+        "You need to send the main sentence structure first.";
+    }
+    else if(diagram.adj==1){
+        document.getElementById("errorM").innerHTML = 
+	    "The adjective structure already exists";
+	}
+	else {
+        document.getElementById("errorM").innerHTML = "";
+        // draw adjective line for sentence structure
+        ctx.beginPath ( );
+        ctx.moveTo (.25*w,.4*h);
+        ctx.lineTo (.5*w,.8*h);
+        ctx.stroke ( );
+        diagram.adj = 1;
+    }
+}      
+       
+// ADVERB LINE Code written by Robert (Alex) Spangler 
+//(since other contribution not received yet)
+// This is an analog to the "drawAdjLine" 
+//function with different line location.
+    console.log(diagram.adv);
+function drawAdvLine(ctx, w, h){ 
+    if (diagram.sent==0) {
+        document.getElementById("errorM").innerHTML = 
+        "You need to send the main sentence structure first.";
+    }
+    else if(diagram.adv==1){
+        document.getElementById("errorM").innerHTML = 
+	    "The adverb structure already exists";
+	}
+	else {
+	
+	    document.getElementById("errorM").innerHTML = "";
+        // draw adverb line for sentence structure
+        ctx.beginPath ( );
+        ctx.moveTo (.55*w,.4*h);
+        ctx.lineTo (.8*w,.8*h);
+        ctx.stroke ( );
+        diagram.adv = 1;
+    }
+}          
+// SUBJECT Code written by Kyle Simmons
+function drawSubject(ctx, w, h,s) {
+
+     // Checks if a sentence structure has been drawn.
+     // Displays an error if it hasn't been.
+     if(!diagram.sent) { 
+          document.getElementById("errorM").innerHTML = 
+          "You need to draw the main sentence structure first.";
+     } 
+
+         // Only executes if sentence structure drawn. (Changed: Does NOT use)array
+         //slice method to determine if the second element contains a word.(Instead,just
+         //checks element [1] for simplicity; my change.)
+     else { 
+          if(proposal[1]/*.slice(1, 2) != ""*/) {
+               document.getElementById("errorM").innerHTML =
+               "You have already placed the subject there.";
+          }
+              // Otherwise, it splices the value of s into the second
+              // value of the array. It then clears the errors and 
+              // displays s on the canvas.
+          else {
+              proposal.splice(1, 1, s);
+              document.getElementById("errorM").innerHTML = "";
+              ctx.fillText(s, .25*w, .35*h);
+          }
+     }
+}
+// PREDICATE Code borrowed from the  Kyle Simmons "drawSubject" function.
+// This is an analog to the "drawSubject" function with a different word and location.
+function drawPredicate(ctx, w, h, p) {
+
+     // Checks if a sentence structure has been drawn.
+     // Displays an error if it hasn't been.
+     if(diagram.sent==0) { 
+          document.getElementById("errorM").innerHTML = 
+          "You need to draw the main sentence structure first.";
+     } 
+
+         // Only executes if sentence structure drawn. (Changed: Does NOT use) array
+        //slice method to determine if the third element contains a word.(Instead,just
+        //checks element [2], for simplicity)
+     else { 
+          if(proposal[2]/*.slice(1, 2) != ""*/) {
+               document.getElementById("errorM").innerHTML =
+               "You have already placed a predicate there.";
+          }
+
+              // Otherwise, it splices the value of s into the second
+              // value of the array. It then clears the errors and 
+              // displays s on the canvas.
+          else {
+              proposal.splice(2, 1, p);
+              document.getElementById("errorM").innerHTML = "";
+              ctx.fillText(p, .55*w, .35*h);
+          }
+     }
+}          
+// ADJECTIVE Code written by Scott Horn.
+function drawAdj (ctx, w, h, a) {
+     var error = document.getElementById("errorM");
+
+     if (!diagram.sent) {
+          error.innerHTML = "**Sentence structure must be placed first**";
+          return false;
+     }
+     else if (!diagram.adj) {
+          error.innerHTML = "**Adjective structure must be placed first**";
+          return false;
+     }
+     else {
+          if (proposal[0]) {
+               error.innerHTML = "**You already have selected an adjective**";
+          } else {
+               error.innerHTML = "";
+               proposal[0] = a;
+
+               ctx.save();
+               ctx.translate((w*.33), (h*.41));
+               ctx.rotate(46*Math.PI/180);
+               ctx.fillText(a, 0, 10);
+               ctx.restore();
+          }
+     }
+};
+// ADVERB Code borrowed from Scott Horn, since other contribution 
+//not received yet. Analogous to drawAdj
+
+function drawAdv (ctx, w, h, av) {
+    //alert("Adverb goes here.");
+     var error = document.getElementById("errorM");
+
+     if (!diagram.sent) {
+          error.innerHTML = "**Sentence structure must be placed first**";
+          return false;
+     }
+     else if (!diagram.adv) {
+          error.innerHTML = "**Adverb structure must be placed first**";
+          return false;
+     }
+     else {
+          if (proposal[3]) {
+               error.innerHTML = "**You already have selected an adverb**";
+          } else {
+               error.innerHTML = "";
+               proposal[3] = av;
+
+               ctx.save();
+               ctx.translate((w*.63), (h*.41));
+               ctx.rotate(46*Math.PI/180);
+               ctx.fillText(av, 0, 10);
+               ctx.restore();
+          }
+     }
+}
+
+
+function displayClosing(){
+    var x= document.getElementById("secondHead"); 
+    x.innerHTML = "<head id= secondHead'>" + 
+    "<link rel='stylesheet' href='main.css'>";
+    x = document.getElementById("mainTitle");
+    x.innerHTML = "<h1 id='mainTitle'>Thank you for using The Sentence Diagrammer!</h1>";
+    x = document.getElementById("secondTitle");
+    x.innerHTML = "<h2 id='secondTitle'>How do you think you did "+fname+"?</h2>";
+    x = document.getElementById("mainL");
+    x.innerHTML = "&nbsp;";
+    x = document.getElementById("mainB"); 
+    x.innerHTML = "<p id ='name1' margin-top: 2%;>You anticipated earning " +
+    + preScore + "%, and you ended up earning " + 
+    maxScore + "%.</p>" + 
+    "<p id= 'conf'> Based on this information, how confident are you about diagramming sentences now?</p>" +
+    "<div id = 'certainty'>" +
+        "Very Uncertain" +
+        "<input id='slider2' type='range' min='0' max='10' value = 'postConf' step = '1'>" + 
+        "Very Confident" +
+    "</div>" +
+    "<p></p>" + 
+    "<div id = 'subbut1'>" +
+        "<button id='submit' onclick ='displayGoodbye()'>Submit</button>" +
+    "</div>" +
+    "<p></p>"; 
+    x = document.getElementById("mainR");
+    x.innerHTML = "&nbsp;";
+    x = document.getElementById("botpara");
+    x.innerHTML = "&nbsp;";
+}
+
+function displayGoodbye(){
+    postConf = document.getElementById("slider2").value;    
+    var  x = document.getElementById("secondHead"); 
+    x.innerHTML = "<head id= secondHead'>" +
+    "<link rel='stylesheet' href='main.css'>";
+    x = document.getElementById("mainTitle");
+    x.innerHTML = "<h1 id='mainTitle'>Thank you for using The Sentence Diagrammer!</h1>";
+    x = document.getElementById("secondTitle");
+    x.innerHTML = "<h2 id='secondTitle'>How do you think you did "+fname+"?</h2>";
+    x = document.getElementById("mainL");
+    x.innerHTML = "&nbsp;";
+
+console.log(postConf, preConf);
+
+    if(postConf >= preConf || postConf ==10 ){
+        x = document.getElementById("mainB");
+        //first mainB that show's up if the user is more confident.
+        x.innerHTML = "<p style='text-align: center;'><b>We're so glad you feel more Confident!</b></p>";
+    }
+    else {
+        x = document.getElementById("mainB");
+        //second mainB that show's up if the user isn't confident.
+        x.innerHTML = "<p style='text-align: center;'><b>We're sorry to hear you are not more confident now.</b></p>" +  
+        "<p style='text-align: center;'><b>Perhaps you would benefit from additional practice.</b></p>" +
+        "<p></p>" +
+        "<div id = 'subbut1'>" +
+        "<button id='submit' onclick ='displayDiagram(w,h), resetAll(w,h)' style ='align-items:center;'><b>Practice more.</b></button>" +
+        "</div>" +
+        "<p></p>";   
+    }
+       
+    x = document.getElementById("mainR");
+    x.innerHTML = "&nbsp;";
+    x = document.getElementById("botpara");
+    x.innerHTML = "&nbsp;";
+}   
+       
+function checkProposal(){
+    var numRight =0;
+    var wdsWrong = ["","","",""];
+// Calculate the percentage correct. 
+    for(i=0;i<words.length;i++){
+        if(words[i] == proposal[i]){
+            numRight +=1;
+        }    
+    }
+    maxScore = (numRight/words.length)*100;
+// Designate which words need to be placed differenetly
+    for(i=[0];i<words.length;i++){
+        if(words[i] == proposal[i]){
+            wdsWrong[i] = "";
+        }
+        else{
+            wdsWrong[i] = proposal[i];
+        }
+    }
+   
+    x = document.getElementById("botpara");
+    x.innerHTML = "<div style=' position:absolute; left:24%;" +
+     " top: 75% ; width:50%; Height: 8%;text-align:center;" +
+     " background-color: white;'>" +
+     "<p style='padding:3%;color:blue'>" +
+     "These words require different placement: " + wdsWrong[0] +"  "+ wdsWrong[1] +
+     "  "+ wdsWrong[2] +"  "+ wdsWrong[3] + ". <br>" + 
+     "You earned " + maxScore + "%, " + fname +".</p>" +
+     "</div>";
+}
+
+function resetAll(w, h){
+    w = document.getElementById("mainB").clientWidth;
+    h = document.getElementById("mainB").clientHeight;
+    diagram = {sent:0, adj:0, adv:0};
+    proposal = ['','','',''];
+    displayDiagram(w, h);   
+}
+
+</script>
+</body>
+</html>

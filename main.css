@@ -1,0 +1,55 @@
+/*Robert A. Spangler, Assignment 1 CSS Sentence Diagrammer*/
+body {
+    text-align: center;
+}
+#container{/*margin-left:auto; margin-right:auto;*/;top: 0px; left: 0%; width: 100%; */ background-color: #ccccb3;
+}
+
+p{text-align: left;margin-left: 5px;}
+#canvas1 {
+    position: absolute;
+    border-top: 4px solid black;
+    border-bottom: 4px solid black;
+    background-color:#f2f2f2;
+    height: 500px;
+    width: 50%;
+    right: 25%;
+    padding: 5px;}
+
+#conf {margin-top: 8%}
+
+.main { 
+    position: absolute;
+    margin-top: 0%;
+    border-top: 2px solid black;
+    border-bottom: 2px solid black;
+    background-color: #F0F0F0;
+    margin: auto;
+    width: 50%;
+    right:25%;
+	padding-top:1%;
+	padding-left:2%;
+	margin-bottom:2%;
+    text-align: justify;
+}
+/*#mainB {text-align: center;
+    position: absolute;
+    margin-top: 10%;
+    border-bottom: 2px solid black;
+    background-color: #F0F0F0;
+    margin: auto;
+    width: 50%;
+    right: 25%;
+    height: 55%;
+    text-align: justify;
+}*/
+#mainL {position: absolute; left:1%; width: 24%; height: 10%; Margin-top: 10%; margin:auto;}
+#mainR {position:absolute;right:1%; width:24%;height:10%; margin-top:10%; margin:auto; }
+#certainty {margin-left: 50px;margin-top: 0px;}
+#scorediv {margin-left: 90px;margin-top: 5px;}
+#subbut { position: absolute;margin-left: 220px;margin-bottom:50 ;height: 50px;}
+#subbut1{margin-left: 190px; height =20%;}
+#namein{ margin-top:15px; margin-left:20;}
+#name { margin-top: 0%; position: absolute;}
+/*#submit {margin-top: 10%;
+    position: absolute;}*/
